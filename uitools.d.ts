@@ -1,7 +1,7 @@
 declare class UITools {
 	getTracklist(): Tracklist;
 	getSelectedTracklist(): Tracklist;
-	notMediaListSelected(params: object = {}) : boolean;
+	notMediaListSelected(params: object) : boolean;
 	getPureTitle(title: any): string;
 	getCanEdit(): boolean;
 	getCanDelete(): boolean;

@@ -3,20 +3,20 @@
  * Base class for wrapper, which wrapps JS array, so it can be used as dataSource of LV's.
  * controls/arrayDataSource.js
  */
-declare class ArrayDataSource<T>{
+declare class ArrayDataSource<T = any>{
 	_lockUpdateCount: number;
 	_focusedIndex: number;
-	_items: Array;
+	_items: Array<any>;
 	_updateSuspendCount: number;
 	_dontNotify: number;
 	_isLoaded: boolean;
 	_loadedEvents: any[];
-	count: undefined;
+	count: number;
 	getSelectedTracklist: () => any;
 	hasItemSelected: () => boolean;
 	getCheckedList: () => ArrayDataSource<any>;
 	selectRangeAsync: (fromIndex: any, toIndex: any, doSelect: any) => Promise<any>;
-	getValueLink: (index: any) => ValueLink;
+	getValueLink: (index: any) => any; //
 	modifyAsync: (func: any) => Promise<any>;
 	forEach: (func: any) => void;
 	setSelected: (index: any, value: any) => void;
@@ -42,8 +42,8 @@ declare class ArrayDataSource<T>{
 	clearGroupsAsync: () => Promise<any>;
 	prepareGroupsAsync: () => Promise<any>;
 	restoreFocusedItem: (val: any) => void;
-	constructor(sourceArray: ArrayLike, params: any);
-	initialize: (sourceArray: Array, params: any) => void;
+	constructor(sourceArray: ArrayLike<T>, params: any);
+	initialize: (sourceArray: Array<T>, params: any) => void;
 	beginUpdate();
 	endUpdate();
 	add: (item: any) => void;
@@ -58,15 +58,10 @@ declare class ArrayDataSource<T>{
 	addEventListener: (event: string, func: Function) => void;
 	removeEventListener: (event: string, func: Function) => void;
 	isMixedStateAsync: () => Promise<{frstState: boolean, isMixed: boolean}>;
-	getAllValues: (key: string) => Array;
+	getAllValues: (key: string) => Array<T>;
 	callEvent: (event: string, a?, b?, c?, d?, e?) => void;
 	locked: (func: Function) => void;
 	getFastObject: (index: number, obj?: any) => T;
 	clearSelection: () => void;
-	getSelectedList: () => ArrayDataSource
-}
-
-
-interface Window {
-	ArrayDataSource: ArrayDataSource;
+	getSelectedList: () => ArrayDataSource<T>
 }
