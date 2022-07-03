@@ -33,6 +33,28 @@ declare function loalListen(eventObject: Element, eventName: string, eventMethod
 declare function unlistenLocalListeners(): void;
 declare function localPromise(promise: PromiseLike<any>): PromiseLike<any>;
 declare function cleanUpLocalPromises(): void;
+declare function getLeftTop(): {left: number, top: number};
+declare function fixScreenCoords(coords, ctrl?): any;
+declare function getScreenCoordsFromEvent(e: any): {left: number, top: number};
+declare function findScreenPos(obj): any;
+declare function getAbsPosRect(div): DOMRect;
+declare function getOffsetRect(div): any;
+declare function newElement(parent: HTMLElement, type: string, className?: string): HTMLElement;
+declare function isInElement(x, y, obj): boolean;
+declare function debugObject(object): string;
+declare function getRuntimeLessValues(ext_id): any;
+declare function setRuntimeLessValues(values, ext_id): void;
+declare function loadFileFromServer(fname, callback): void;
+declare function getComputedSize(): any;
+declare function setComputedSize(force?, secondLoop?): any;
+declare function getScrollbarWidth(): number;
+declare function getBodyForControls(): HTMLElement;
+declare function addDialogContent(content: string): HTMLElement;
+declare function notifyLayoutChange(rightNow?: boolean): void;
+declare function invalidateLayoutCache(): void;
+declare function enterLayoutLock(element?: HTMLElement): void;
+declare function leaveLayoutLock(element?: HTMLElement): void;
+
 
 declare function queryLayoutAfterFrame(callback: Function): void;
 declare function applyStylingAfterFrame(callback: Function): void;
@@ -178,7 +200,7 @@ faster than a generic selector usage.
 @param s {String} Selector
 @return Element found
 */
-declare function q(s: string): HTMLElement|null;
+declare function q(s: string): HTMLElement;
 
 /**
 Returns all document elements for the selector.
@@ -240,7 +262,7 @@ Returns the first element matching the selector (that is subnode of the given el
 @param {string} s Query selector
 @returns {HTMLElement} Found element
  */
-declare function qe(e: HTMLElement|Document, s: string): HTMLElement|null;
+declare function qe(e: HTMLElement|Document, s: string): HTMLElement;
 
 /**
 Returns all elements for the given selector that are subnodes of the given element.
@@ -258,7 +280,7 @@ Returns the first descendant element of the given element matching the given dat
 @param {string} id data-id of the requested element
 @returns {Element} Found element
  */
-declare function qeid(e: HTMLElement, id: string): HTMLElement|null;
+declare function qeid(e: HTMLElement, id: string): HTMLElement;
 
 /**
 Execute a callback function for every element in an array.
@@ -270,6 +292,7 @@ Execute a callback function for every element in an array.
 @param {function} callback Callback (It is passed each item of nodeList and its index)
  */
 declare function forEach(nodeList: ArrayLike<any>, callback: Function);
+// declare function forEach<T>(nodeList: ArrayLike<T>, callback: (item: T) => any); // todo
 
 /**
 Execute a callback function for every item in a SharedList, using getFastObject.
@@ -394,6 +417,104 @@ Returns control inside which this element is contained.
 @return {Control} Control found (or undefined).
 */
 declare function elementControl(el?: HTMLElement|null): Control|undefined;
+/**
+Return parent of the element.
+
+@method getParent
+@param {HTMLElement} e Element to get his parent
+*/
+declare function getParent(e: HTMLElement): HTMLElement|ParentNode|null|undefined;
+/**
+Execute an app/window reload.
+@method doReload
+@param {boolean} [storeState=true] Whether to store UI state during reload
+@param {boolean} [softReload=false] Whether to JUST reload LESS styling
+@param {boolean} [lessChanged=false] Whether LESS was changed
+@param {string} [customCaption] Custom caption to display in the reload prompt.
+*/
+declare function doReload(storeState?: boolean, softReload?: boolean, lessChanged?: boolean, customCaption?: string): void;
+/**
+Reload LESS styling (Only allowed in main window).
+@method reloadLess
+@returns {Promise}
+*/
+declare function reloadLess(): void;
+/**
+<b>[ADDED IN VERSION 5.0.2]</b><br>
+Set runtime values for LESS variables, for skins, without destroying existing values.
+
+@example 
+    
+    // The following will be interpreted as "@warningColor: red;" and Monkey Groove's main color will be changed to red.
+    setLessValues({warningColor: 'red'}, 'Monkey Groove'); 
+    
+    // The following will remove the custom "@warningColor: red;" from the previous example, on the Monkey Groove skin only.
+    setLessValues({warningColor: ''}, 'Monkey Groove'); 
+    setLessValues({warningColor: null}, 'Monkey Groove'); 
+    
+    // The following will be interpreted as "@textColor: green;" and be applied to ALL skins.
+    setLessValues({textColor: 'green'}); 
+@method setLessValues
+@param {object} values Values, in key-value format. If the value is undefined (or null or empty string), the variable will be removed.
+@param {string} [ext_id] Optional: Addon ID of the skin. If specified, the LESS variables will only apply to the one skin.
+@param {boolean} [flush] Optional: Flush (reset) existing LESS variables
+*/
+declare function setLessValues(values: StringDict, ext_id?: string, flush?: boolean): any;
+/**
+Loads a HTML file and includes it in the given element. It also executes all the scripts of the HTML file. Note that a call to initializeControls 
+ might be needed in order to initialize any custom UI control in the loaded HTML. <br>
+For all the scripts within the included HTML there's window.rootElement set to the element where the HTML is being included, in order to be able to modify the correct part of DOM (if needed).
+@method includeHTML
+@param {HTMLElement} element Element where to load HTML
+@param {string} filename Source file for the HTML
+ */
+declare function includeHTML(element: HTMLElement, filename: string): void;
+/**
+Process our internal attributes to properly initialize the document
+@method processIncludes
+@param {HTMLElement} element 
+ */
+declare function processIncludes(element: HTMLElement): void;
+/**
+Initializes an HTML element to a ControlClass. (see {{#crossLink "Control"}}{{/crossLink}})
+@example
+
+    <div data-id="chbExample" data-control-class="Checkbox">This is a Checkbox</div>
+    
+    initializeControl(qid('chbExample'));
+@method initializeControl
+@param {HTMLElement} control Element to initialize
+ */
+declare function initializeControl(control: HTMLElement): void;
+/**
+Initializes all UI controls below a particular HTML element. This means loading a necessary JS and all the initialization code. This is normally done automatically on window load by mminit.js inclusion.
+@method initializeControls
+@param {HTMLElement} element Element to process (and all its children)
+ */
+declare function initializeControls(element: HTMLElement): void;
+/**
+Calls the specified function when all page scripts are loaded and processed. So it's processed after window.onLoad event, but before {{#crossLink "Window/whenReady:method"}}whenReady(){{/crossLink}} event. <br>
+If called after this event, the callback function is executed immediately.
+@method whenLoaded
+@param {Function} event Callback function to be executed when ready.
+ */
+declare function whenLoaded(event: callback): ;
+/**
+Calls the specified function when all scripts are loaded, the whole DOM is processed by our parser and all controls are initialized. I.e. at this point everything is ready to be used. So both window.onLoad and {{#crossLink "Window/whenLoaded:method"}}whenLoaded(){{/crossLink}} events occur before this one.
+If called after this event, the callback function is executed immediately.
+
+@method whenReady
+@param {Function} event Callback function to be called.
+ */
+declare function whenReady(callback: callback): void;
+/**
+Can be called to avoid any {{#crossLink "Window/layoutchange:event"}}layoutchange event{{/crossLink}} occurence during execution of some code.
+
+@method lockedLayout
+@param {HTMLElement} element Element where all the changes occur (its sub-tree is modified).
+@param {Function} callback A function during which execution won't any layout procession occur (only on its end).
+*/
+declare function lockedLayout(element: HTMLElement, callback: callback): void;
 
 
 declare var settings: WindowSettings;
@@ -414,6 +535,19 @@ declare var _old_loadFile: any;
 declare var __windowListeners: any[];
 declare var __windowPromises: any[];
 declare var windowCleanup: any;
+declare var pageLoaded: boolean;
+declare var pageReady: boolean;
+declare var cssLoaded: boolean;
+declare var logger: any;
+declare var less: any;
+declare var rootElement: HTMLElement;
+declare var _rootElement: HTMLElement;
+declare var layoutChangeCounter: number;
+
+
+interface Promise {
+	cancel?: () => void;
+}
 
 interface Document {
 	documentMode: boolean;
@@ -438,6 +572,19 @@ interface Promise<T> {
  */
 interface UIElements {
 	[key: string]: HTMLElement;
+}
+
+interface Element {
+	_iconInitialized?: boolean;
+	oldWidth?: number;
+	oldHeight?: number;
+    initInProgress?: boolean;
+    layoutLocked: number; // todo, add ?
+    layoutUpdateNeeded?: boolean;
+}
+
+interface HTMLScriptElement {
+    executed?: boolean;
 }
 
 declare var InstallTrigger: any; // firefox

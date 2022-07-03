@@ -7,6 +7,7 @@ declare class UITools {
 	getCanDelete(): boolean;
 	getHelpContext(el: HTMLElement): string;
 	openDialog(name: string, opts: object): Window;
+    storeUIState(): void;
 }
 
 

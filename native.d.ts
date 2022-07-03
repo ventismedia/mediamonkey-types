@@ -636,6 +636,10 @@ declare class App {
 	tests: any;
     utils: AppUtils;
 	idle();
+    currentSkin(): Skin;
+    currentLayout(): Skin;
+    inSafeMode(): boolean;
+    debug?: boolean;
 }
 
 declare class AppUtils {
@@ -1218,6 +1222,18 @@ declare interface BackgroundTasks extends SharedBase {
 	*/
 }
 
+declare interface Skin {
+    isCurrent: boolean;
+    title: string;
+    id: string;
+    description: string;
+    version: string;
+    author: string;
+    icon: string;
+    path: string;
+    skinOptions: string;
+}
+
 interface Window {
 	app: App;
 }
@@ -1229,103 +1245,120 @@ declare function ODS(str: string);
 declare function _alert(a, b?, c?, d?); // no regular way to define an infinite parameter function, apparently
 
 // SharedWindow
-declare class SharedWindow {
-	updateDevicePixelRatio: Function;
-	applyWindowStates: Function;
-	setDock: Function;
-	callDialogInit: Function;
-	customMenuItemClick: Function;
-	identifier: Function;
-	setMoveableColor: Function;
-	notifyLoaded: Function;
-	runJSCode_callback: Function;
-	getWindowMonitor: Function;
-	getAsyncShowToken: Function;
-	setMoveableArea: Function;
-	executeCode: Function;
-	executeFile: Function;
-	activate: Function;
-	createOwnWindow: Function;
-	setBounds: Function;
-	setSize: Function;
-	setClientSize: Function;
-	minimize: Function;
-	maximize: Function;
-	restore: Function;
-	closeWindow: Function;
-	hide: Function;
-	show: Function;
-	showModal: Function;
-	include: Function;
-	loadFile: Function;
-	_: Function;
-	callODS: Function;
-	handleEmbeddedWindow: Function;
-	setWindowState: Function;
-	runCommand: Function;
-	getValueInWindowContext: Function;
-	setValue: Function;
-	getValue: Function;
-	notifyOnReady: Function;
-	notifyOnClose: Function;
-	showDevTools: Function;
-	newStringList: Function;
-	preventClose: Function;
-	_alert: Function;
-	messageDlg: Function;
-	locked: Function;
-	getClassName: Function;
-	forceClose: boolean;
-	isMainWindow: boolean;
-	magnetToWindows: boolean;
-	magnetToScreen: boolean;
-	systemDevicePixelRatio: number;
-	textZoomRatio: number;
-	url: string;
-	_window: object;
-	thisWindow: object;
-	headerClass: object;
-	inData: string;
-	outData: string;
-	isMenu: boolean;
-	isModal: boolean;
-	windowIsLoaded: boolean;
-	title: string;
-	posSaveName: string;
-	resizeable: boolean;
-	moveable: boolean;
-	toolWindow: boolean;
-	bordered: boolean;
-	flat: boolean;
-	atTop: boolean;
-	atTopMost: boolean;
-	dockPos: string;
-	dockAlign: string;
-	fadeTime: number;
-	modalResult: number;
-	opacity: number;
-	active: boolean;
-	maximized: boolean;
-	minimized: boolean;
-	canMinimize: boolean;
-	canMaximize: boolean;
-	visible: boolean;
-	clientWidth: number;
-	clientHeight: number;
-	builtInMenu: boolean;
-	menuJSON: string;
-	showAsVideoPlayer: boolean;
-	shape: string;
-	shapeColor: number;
-	addHeader: boolean;
-	borderSize: number;
-	reloadInProgress: boolean;
-	inspectElementSupported: boolean;
-	devToolsUrl: string;
-	bounds: object;
-	statusInfo: any;
-	native: boolean
-}
+// declare class SharedWindow {
+declare var updateDevicePixelRatio: procedure;
+declare var applyWindowStates: Function;
+declare function applyWindowStates(name: string): void;
+declare function setDock(pos: string, align: string): void;
+declare function callDialogInit(): void;
+declare function customMenuItemClick(itemID: integer, customData: integer): void;
+declare function identifier(): integer;
+declare var setMoveableColor: Function;
+declare function notifyLoaded(): void;
+/**
+When using the COM method runJSCode(), the running code can call this method to return data to the calling application.
+
+@param data Data to send to the calling COM application.
+
+@example
+
+     SLText = SDB.runJSCode("app.playlists.getByTitleAsync('Test Playlist').then(function(playlist) { if (!playlist) runJSCode_callback('Could not find playlist'); else playlist.getTracklist().whenLoaded().then(function (list) { runJSCode_callback(list.asJSON); }); });", True)
+ */
+declare function runJSCode_callback(data: string): void;
+declare var getWindowMonitor: Function;
+declare var getAsyncShowToken: Function;
+declare var setMoveableArea: Function;
+declare var executeCode: Function;
+declare var executeFile: Function;
+declare var activate: Function;
+declare var createOwnWindow: Function;
+declare var setBounds: Function;
+declare var setSize: Function;
+declare var setClientSize: Function;
+declare var minimize: Function;
+declare var maximize: Function;
+declare var restore: Function;
+declare var closeWindow: Function;
+declare var hide: Function;
+declare var show: Function;
+declare var showModal: Function;
+declare var include: Function;
+declare var loadFile: Function;
+declare var _: Function;
+declare var callODS: Function;
+declare var handleEmbeddedWindow: Function;
+declare var setWindowState: Function;
+declare var runCommand: Function;
+declare var getValueInWindowContext: Function;
+declare var setValue: Function;
+declare var getValue: Function;
+declare var notifyOnReady: Function;
+declare var notifyOnClose: Function;
+declare var showDevTools: Function;
+declare var newStringList: Function;
+declare var preventClose: Function;
+declare var _alert: Function;
+declare var messageDlg: Function;
+declare var locked: Function;
+declare var getClassName: Function;
+declare var forceClose: boolean;
+declare var isMainWindow: boolean;
+declare var magnetToWindows: boolean;
+declare var magnetToScreen: boolean;
+declare var systemDevicePixelRatio: number;
+declare var textZoomRatio: number;
+declare var url: string;
+declare var _window: object;
+declare var thisWindow: object;
+declare var headerClass: any; // todo
+declare var inData: string;
+declare var outData: string;
+declare var isMenu: boolean;
+declare var isModal: boolean;
+declare var windowIsLoaded: boolean;
+declare var title: string;
+declare var posSaveName: string;
+declare var resizeable: boolean;
+declare var moveable: boolean;
+declare var toolWindow: boolean;
+declare var bordered: boolean;
+declare var flat: boolean;
+declare var atTop: boolean;
+declare var atTopMost: boolean;
+declare var dockPos: string;
+declare var dockAlign: string;
+declare var fadeTime: number;
+declare var modalResult: number;
+declare var opacity: number;
+declare var active: boolean;
+declare var maximized: boolean;
+declare var minimized: boolean;
+declare var canMinimize: boolean;
+declare var canMaximize: boolean;
+declare var visible: boolean;
+declare var clientWidth: number;
+declare var clientHeight: number;
+declare var builtInMenu: boolean;
+declare var menuJSON: string;
+declare var showAsVideoPlayer: boolean;
+declare var shape: string;
+declare var shapeColor: number;
+declare var addHeader: boolean;
+declare var borderSize: number;
+declare var reloadInProgress: boolean;
+declare var inspectElementSupported: boolean;
+declare var devToolsUrl: string;
+declare var bounds: {
+	windowRect: {
+		left: number;
+		top: number;
+	};
+	width: number;
+	height: number;
+};
+declare var statusInfo: any;
+declare var native: boolean
+declare var doNotCheckLess: boolean;
 
 declare var thisWindow: SharedWindow;
 
